@@ -18,7 +18,7 @@ class SimpleRhythmEnvironment(py_environment.PyEnvironment):
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=1, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(1,), dtype=np.int32, minumum=0, name='observation')
+            shape=(1,), dtype=np.int32, minimum=0, name='observation')
         self._state = 0
         self._episode_ended = False
     
