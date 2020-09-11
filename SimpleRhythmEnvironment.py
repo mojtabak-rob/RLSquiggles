@@ -40,7 +40,7 @@ class SimpleRhythmEnvironment(py_environment.PyEnvironment):
         if action == 1:
             self._episode_ended = True
         elif action == 0:
-            self.state += 1
+            self._state += 1
         else:
             raise ValueError('`action` should be 0 or 1.')
         
