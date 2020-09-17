@@ -2,5 +2,5 @@ print("HI")
 
 print("Hi again for testing")
 
-testing = "HELLO"
+testing = "goodbye"
 print(testing)
