@@ -13,7 +13,7 @@ from tf_agents.trajectories import time_step as ts
 
 tf.compat.v1.enable_v2_behavior()
 
-class SimpleRhythmEnvironment(py_environment.PyEnvironment):
+class ComplexRhythmEnvironment(py_environment.PyEnvironment):
     def __init__(self, bpm = 120, offset = 0):
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=1, name='action')
