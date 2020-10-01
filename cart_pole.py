@@ -6,25 +6,16 @@ Created on Fri Sep 18 12:40:41 2020
 @author: mia-katrinkvalsund
 """
 
-import base64
-import imageio
-import matplotlib
-import matplotlib.pyplot as plt
-
+# Module imports
 import tensorflow as tf
-
-from tf_agents.agents.dqn.dqn_agent import DqnAgent
-from tf_agents.networks.q_network import QNetwork
-
-from tf_agents.environments import suite_gym
 from tf_agents.environments import tf_py_environment
-
 from tf_agents.policies.random_tf_policy import RandomTFPolicy
 from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuffer
 from tf_agents.trajectories import trajectory
-from tf_agents.utils import common
 
-from SimpleRhythmEnvironment import SimpleRhythmEnvironment
+# Written by us imports
+from ComplexRhythmEnvironment import ComplexRhythmEnvironment
+from basic_agent import generic_dqn_agent # a function
 
 # Globals
 NUMBER_ITERATION = 20000
@@ -35,8 +26,8 @@ EVAL_INTERVAL = 1000
 
 #######################################################################
 
-train_env = SimpleRhythmEnvironment()
-evaluation_env = SimpleRhythmEnvironment()
+train_env = ComplexRhythmEnvironment()
+evaluation_env = ComplexRhythmEnvironment()
 
 print('Observation Spec:')
 print(train_env.time_step_spec().observation)
@@ -52,26 +43,7 @@ evaluation_env = tf_py_environment.TFPyEnvironment(evaluation_env)
 
 #####################################################################
 
-hidden_layers = (100,)
-
-q_network = QNetwork(
-    train_env.observation_spec(),
-    train_env.action_spec(),
-    fc_layer_params=hidden_layers)
-
-#####################################################################
-
-counter = tf.Variable(0)
-
-agent = DqnAgent(
-    train_env.time_step_spec(),
-    train_env.action_spec(),
-    q_network = q_network,
-    optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=1e-3),
-    td_errors_loss_fn = common.element_wise_squared_loss,
-    train_step_counter = counter)
-
-agent.initialize()
+agent, _ = generic_dqn_agent(train_env)
 
 #####################################################################
 
@@ -89,13 +61,13 @@ def get_average_return(environment, policy, episodes=10):
             episode_return += time_step.reward
     
         total_return += episode_return
-        avg_return = total_return / episodes
+    avg_return = total_return / episodes
     
     return avg_return.numpy()[0]
 
 #####################################################################
     
-class ExperienceReply(object):
+class ExperienceReplay(object):
     def __init__(self, agent, enviroment):
         self._replay_buffer = TFUniformReplayBuffer(
             data_spec=agent.collect_data_spec,
@@ -126,7 +98,7 @@ class ExperienceReply(object):
 
         self._replay_buffer.add_batch(timestamp_trajectory)
 
-experience_replay = ExperienceReply(agent, train_env)
+experience_replay = ExperienceReplay(agent, train_env)
 
 #####################################################################
 
