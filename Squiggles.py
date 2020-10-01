@@ -59,3 +59,5 @@ class Squiggles():
             test = np.random.rand()
             self.o[i] = 1 if self.hist[i] > test else 0 #self.f(self.hist[i], self.k, self.i) > test else 0
             self.ham += 1 if self.o_prev[i] == self.o[i] else 0
+
+        self.ham /= 16
