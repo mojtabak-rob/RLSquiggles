@@ -17,7 +17,7 @@ tf.compat.v1.enable_v2_behavior()
 
 class SquigglesEnvironment(py_environment.PyEnvironment):
     def __init__(self, bpm = 120, num_squiggles = 2, num_notes_out=2):
-        super(SquigglesRhythmEnvironment, self).__init__()
+        super(SquigglesEnvironment, self).__init__()
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=1, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
