@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Basic code for basic agent. Includes examples of how to use it in loop. 
+""" Basic code for basic agent. Includes examples of how to use it in loop.
 .train takes an experience from a replay buffer """
 
 import tensorflow as tf
@@ -14,7 +14,7 @@ def generic_dqn_agent(env: TFPyEnvironment) -> (dqn_agent.DqnAgent, q_network.QN
     """ Function that returns a generic dqn agent
     args:
         env (TFPyEnvironment) : The environment the agent will live in
-        
+
     Returns:
         dqn_agent.DqnAgent: The agent to train
         q_network.QNetwork: The network used in the agent
@@ -23,9 +23,9 @@ def generic_dqn_agent(env: TFPyEnvironment) -> (dqn_agent.DqnAgent, q_network.QN
       env.observation_spec(),
       env.action_spec(),
       fc_layer_params=(100,))
-    
+
     optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=0.3)
-    
+
     agent = dqn_agent.DqnAgent(
       env.time_step_spec(),
       env.action_spec(),
@@ -34,13 +34,13 @@ def generic_dqn_agent(env: TFPyEnvironment) -> (dqn_agent.DqnAgent, q_network.QN
       td_errors_loss_fn=common.element_wise_squared_loss,
       train_step_counter=tf.Variable(0)
     )
-    
+
     agent.initialize()
-    
+
     return agent, q_net
 
 #########################################################################
-    
+
 env = SimpleRhythmEnvironment()
 env = TFPyEnvironment(env)
 

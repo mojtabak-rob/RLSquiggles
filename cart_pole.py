@@ -13,17 +13,19 @@ from tf_agents.policies.random_tf_policy import RandomTFPolicy
 from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuffer
 from tf_agents.trajectories import trajectory
 
+import matplotlib.pyplot as plt
+from tqdm import tqdm
+
 # Written by us imports
 from SquigglesEnvironment import SquigglesEnvironment
 from basic_agent import generic_dqn_agent # a function
-from tqdm import tqdm
 
 # Globals
-NUMBER_ITERATION = 20000
+NUMBER_ITERATION = 2000
 COLLECTION_STEPS = 1
 BATCH_SIZE = 64
 EVAL_EPISODES = 5
-EVAL_INTERVAL = 1000
+EVAL_INTERVAL = 100
 
 #######################################################################
 
@@ -54,8 +56,6 @@ def get_average_return(environment, policy, episodes=10):
     avg_return = total_return / episodes
 
     return avg_return.numpy()[0]
-
-#####################################################################
 
 class ExperienceReplay(object):
     def __init__(self, agent, enviroment):
@@ -111,3 +111,6 @@ for _ in tqdm(range(NUMBER_ITERATION)):
         returns.append(avg_return)
 
 #####################################################################
+
+plt.plot(returns)
+plt.show()
