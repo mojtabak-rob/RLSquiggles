@@ -70,7 +70,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             self._squiggles_input = [0 for i in range(16)]
 
         play = False
-        if self.state%self._time_between_squiggles_beats == 0 and self._squiggles_list[-1].o[(self.state/self._time_between_squiggles_beats)%16] == 1:
+        if self._state%self._time_between_squiggles_beats == 0 and self._squiggles_list[-1].o[(self.state/self._time_between_squiggles_beats)%16] == 1:
             play = True
             self._time_since_second_real_play = self._time_since_real_play
             self._time_since_real_play = 0
