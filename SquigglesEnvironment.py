@@ -26,7 +26,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         self._time_since_real_play = 0
         self._time_since_second_real_play = 0
         self._episode_ended = False
-        self._time_between_squiggles_beats = 60*1000//4*bpm
+        self._time_between_squiggles_beats = 60*100//4*bpm
         self._time_since_last_play = 0
         self._number_of_plays = 0
         self._number_of_real_plays = 0
@@ -78,7 +78,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         output = 1 if play else 0
         self._number_of_real_plays += output
 
-        if self._state >= 10000:
+        if self._state >= 1000:
             #50 is a random constant here, should probably be tweaked
             reward = -np.absolute(self._number_of_plays - self._number_of_real_plays)*50
             return ts.termination(np.array([self._time_since_real_play, self._time_since_second_real_play], dtype=np.int32), reward)
@@ -87,7 +87,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
 
             if action == 1:
                 self._number_of_plays += 1
-                if self._time_since_last_play < self._time_between_beats/3:
+                if self._time_since_last_play < self._time_between_squiggles_beats/3:
                     reward = -100 #Random number, probably needs tweaking
                 else:
                     current_closeness_to_real_beat = self._state%self._time_between_squiggles_beats
