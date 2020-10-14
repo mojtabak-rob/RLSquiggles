@@ -87,7 +87,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
 
             if action == 1:
                 self._number_of_plays += 1
-                if self._time_since_last_play < self._time_between_beats/3:
+                if self._time_since_last_play < self._time_between_squiggles_beats/3:
                     reward = -100 #Random number, probably needs tweaking
                 else:
                     current_closeness_to_real_beat = self._state%self._time_between_squiggles_beats
