@@ -16,12 +16,13 @@ from tf_agents.trajectories import trajectory
 # Written by us imports
 from SquigglesEnvironment import SquigglesEnvironment
 from basic_agent import generic_dqn_agent # a function
+from tqdm import tqdm
 
 # Globals
 NUMBER_ITERATION = 20000
 COLLECTION_STEPS = 1
 BATCH_SIZE = 64
-EVAL_EPISODES = 10
+EVAL_EPISODES = 5
 EVAL_INTERVAL = 1000
 
 #######################################################################
@@ -51,7 +52,7 @@ def get_average_return(environment, policy, episodes=10):
 
     total_return = 0.0
 
-    for _ in range(episodes):
+    for _ in tqdm(range(episodes)):
         time_step = environment.reset()
         episode_return = 0.0
 
@@ -107,7 +108,7 @@ agent.train_step_counter.assign(0)
 avg_return = get_average_return(evaluation_env, agent.policy, EVAL_EPISODES)
 returns = [avg_return]
 
-for _ in range(NUMBER_ITERATION):
+for _ in tqdm(range(NUMBER_ITERATION)):
 
     for _ in range(COLLECTION_STEPS):
         experience_replay.timestamp_data(train_env, agent.collect_policy)
