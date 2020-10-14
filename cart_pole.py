@@ -29,19 +29,8 @@ EVAL_INTERVAL = 1000
 train_env = SquigglesEnvironment()
 evaluation_env = SquigglesEnvironment()
 
-print('Observation Spec:')
-print(train_env.time_step_spec().observation)
-
-print('Reward Spec:')
-print(train_env.time_step_spec().reward)
-
-print('Action Spec:')
-print(train_env.action_spec())
-
 train_env = tf_py_environment.TFPyEnvironment(train_env)
 evaluation_env = tf_py_environment.TFPyEnvironment(evaluation_env)
-
-#####################################################################
 
 agent, _ = generic_dqn_agent(train_env)
 
