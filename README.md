@@ -1,7 +1,7 @@
 # Squiiiiigggllleeeee
 Depp RL for Dr. Squiggles
 
-Just for now:
+Just for now, as we develop:
 
 ### Running current training loop 
 run cart_pole.py with 
