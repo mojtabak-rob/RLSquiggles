@@ -25,7 +25,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         self._state = 0
         self._time_since_real_plays = np.array([0 for _ in range(num_notes_out)]).astype(np.int32)
         self._episode_ended = False
-        self._time_between_squiggles_beats = 60*100//4*bpm
+        self._time_between_squiggles_beats = 60*100//(4*bpm)
         self._time_since_last_play = 0
         self._number_of_plays = 0
         self._number_of_real_plays = 0
@@ -63,7 +63,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         else:
             raise ValueError('`action` should be 0 or 1.')
 
-        if self._state%(self._time_between_squiggles_beats*16):
+        if self._state%(self._time_between_squiggles_beats*16) == 0:
             self._squiggles_list[0].update_h(self._squiggles_input)
             for i in range(1, len(self._squiggles_list)):
                 self._squiggles_list[i-1].update_o()
@@ -73,7 +73,14 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             self._squiggles_input = [0 for i in range(16)]
 
         play = False
-        if self._state%self._time_between_squiggles_beats == 0 and self._squiggles_list[-1].o[(self.state/self._time_between_squiggles_beats)%16] == 1:
+        """if self._state%self._time_between_squiggles_beats == 0:
+            print("Here I am")
+            print((self._state/self._time_between_squiggles_beats)%16)
+            print(self._squiggles_list[-1].o)
+            print(int((self._state/self._time_between_squiggles_beats)%16))
+            print(self._squiggles_list[-1].o[int((self._state/self._time_between_squiggles_beats)%16)])"""
+        if self._state%self._time_between_squiggles_beats == 0 and self._squiggles_list[-1].o[int((self._state/self._time_between_squiggles_beats)%16)] == 1:
+            #print("I have played", self._state)
             play = True
             self._time_since_real_plays = np.roll(self._time_since_real_plays,1)
             self._time_since_real_plays[0] = 0
@@ -95,8 +102,14 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
                     reward = -10 #Random number, probably needs tweaking
                 else:
                     current_closeness_to_real_beat = self._state%self._time_between_squiggles_beats
+                    closest_beat = self._state-current_closeness_to_real_beat
                     if current_closeness_to_real_beat > self._time_between_squiggles_beats/2:
+                        closest_beat = self._state + current_closeness_to_real_beat
                         current_closeness_to_real_beat -= self._time_between_squiggles_beats
+
+                    current_i = int((closest_beat/self._time_between_squiggles_beats)%16)
+                    self._squiggles_input[current_i] = 1
+
                     reward = 10-np.absolute(0 - current_closeness_to_real_beat)
 
                 self._time_since_last_play = 0
