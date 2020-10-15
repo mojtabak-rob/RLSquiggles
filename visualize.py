@@ -1,8 +1,14 @@
+""" File for plotting the environment observation  for one episode, and making
+a soundfile of the environment in that episode """
+
 import matplotlib.pyplot as plt
 import numpy as np
-import wavio
+import wavio # comment out if you can't get wavio
 
 from SquigglesEnvironment import SquigglesEnvironment
+
+## TODO: Expand to also plot and render agent's actions
+## TODO: Save agent after cartpole training and load in this file
 
 def get_beats(N, ITER, env):
     state = env.reset()
@@ -76,7 +82,7 @@ def main():
     plot_the_hits(the_hits, ITER)
     plt.show()
 
-    make_soundfile(the_hits, ITER)
+    make_soundfile(the_hits, ITER) # comment out if you can't get wavio
 
 if __name__ == "__main__":
     main()

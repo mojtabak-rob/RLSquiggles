@@ -22,7 +22,7 @@ def generic_dqn_agent(env: TFPyEnvironment) -> (dqn_agent.DqnAgent, q_network.QN
     q_net = q_network.QNetwork(
       env.observation_spec(),
       env.action_spec(),
-      fc_layer_params=(3,3))
+      fc_layer_params=(10,10,10))
 
     optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=0.3)
 

@@ -20,11 +20,11 @@ from experience_replay import ExperienceReplay
 from basic_agent import generic_dqn_agent # a function
 
 # Globals
-NUMBER_ITERATION = 2000
+NUMBER_ITERATION = 20000
 COLLECTION_STEPS = 1
 BATCH_SIZE = 64
-EVAL_EPISODES = 5
-EVAL_INTERVAL = 100
+EVAL_EPISODES = 10
+EVAL_INTERVAL = 1000
 
 def get_average_return(environment, policy, episodes=10):
 
