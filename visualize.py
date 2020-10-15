@@ -8,7 +8,7 @@ state = env.reset()
 print(state)
 
 N = env.observation_spec().shape[0]
-ITER = 10000
+ITER = 1000
 
 beats = [[] for _ in range(N)]
 for _ in range(ITER):
