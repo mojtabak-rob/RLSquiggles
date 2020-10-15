@@ -64,7 +64,6 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             raise ValueError('`action` should be 0 or 1.')
 
         if self._state%(self._time_between_squiggles_beats*16) == 0:
-            print(self._squiggles_input)
             self._squiggles_list[0].update_h(self._squiggles_input)
             for i in range(1, len(self._squiggles_list)):
                 self._squiggles_list[i-1].update_o()
