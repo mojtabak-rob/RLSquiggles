@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Sep 18 12:40:41 2020
-
-@author: mia-katrinkvalsund
 """
 
 # Module imports
@@ -18,6 +16,7 @@ from tqdm import tqdm
 
 # Written by us imports
 from SquigglesEnvironment import SquigglesEnvironment
+from experience_replay import ExperienceReplay
 from basic_agent import generic_dqn_agent # a function
 
 # Globals
@@ -27,23 +26,11 @@ BATCH_SIZE = 64
 EVAL_EPISODES = 5
 EVAL_INTERVAL = 100
 
-#######################################################################
-
-train_env = SquigglesEnvironment()
-evaluation_env = SquigglesEnvironment()
-
-train_env = tf_py_environment.TFPyEnvironment(train_env)
-evaluation_env = tf_py_environment.TFPyEnvironment(evaluation_env)
-
-agent, _ = generic_dqn_agent(train_env)
-
-#####################################################################
-
 def get_average_return(environment, policy, episodes=10):
 
     total_return = 0.0
 
-    for _ in tqdm(range(episodes)):
+    for _ in range(episodes):
         time_step = environment.reset()
         episode_return = 0.0
 
@@ -57,60 +44,51 @@ def get_average_return(environment, policy, episodes=10):
 
     return avg_return.numpy()[0]
 
-class ExperienceReplay(object):
-    def __init__(self, agent, enviroment):
-        self._replay_buffer = TFUniformReplayBuffer(
-            data_spec=agent.collect_data_spec,
-            batch_size=enviroment.batch_size,
-            max_length=50000)
+def init():
+    train_env = SquigglesEnvironment()
+    evaluation_env = SquigglesEnvironment()
 
-        self._random_policy = RandomTFPolicy(train_env.time_step_spec(),
-                                                enviroment.action_spec())
+    train_env = tf_py_environment.TFPyEnvironment(train_env)
+    evaluation_env = tf_py_environment.TFPyEnvironment(evaluation_env)
 
-        self._fill_buffer(train_env, self._random_policy, steps=100)
+    agent, _ = generic_dqn_agent(train_env)
 
-        self.dataset = self._replay_buffer.as_dataset(
-            num_parallel_calls=3,
-            sample_batch_size=BATCH_SIZE,
-            num_steps=2).prefetch(3)
+    experience_replay = ExperienceReplay(agent, train_env, BATCH_SIZE)
 
-        self.iterator = iter(self.dataset)
+    return agent, train_env, evaluation_env, experience_replay
 
-    def _fill_buffer(self, enviroment, policy, steps):
-        for _ in range(steps):
-            self.timestamp_data(enviroment, policy)
+def training_loop(agent, train_env, evaluation_env, experience_replay):
+    agent.train_step_counter.assign(0)
 
-    def timestamp_data(self, environment, policy):
-        time_step = environment.current_time_step()
-        action_step = policy.action(time_step)
-        next_time_step = environment.step(action_step.action)
-        timestamp_trajectory = trajectory.from_transition(time_step, action_step, next_time_step)
+    avg_return = get_average_return(evaluation_env, agent.policy, EVAL_EPISODES)
+    returns = [avg_return]
 
-        self._replay_buffer.add_batch(timestamp_trajectory)
+    for _ in tqdm(range(NUMBER_ITERATION)):
 
-experience_replay = ExperienceReplay(agent, train_env)
+        for _ in range(COLLECTION_STEPS):
+            experience_replay.timestamp_data(train_env, agent.collect_policy)
 
-#####################################################################
+        experience, info = next(experience_replay.iterator)
+        train_loss = agent.train(experience).loss
 
-agent.train_step_counter.assign(0)
+        if agent.train_step_counter.numpy() % EVAL_INTERVAL == 0:
+            avg_return = get_average_return(evaluation_env, agent.policy, EVAL_EPISODES)
+            print('Iteration {0} – Average Return = {1}, Loss = {2}.'.format(agent.train_step_counter.numpy(), avg_return, train_loss))
+            returns.append(avg_return)
+    return returns
 
-avg_return = get_average_return(evaluation_env, agent.policy, EVAL_EPISODES)
-returns = [avg_return]
+def main():
+    agent, train_env, evaluation_env, experience_replay = init()
 
-for _ in tqdm(range(NUMBER_ITERATION)):
+    returns = training_loop(
+        agent,
+        train_env,
+        evaluation_env,
+        experience_replay
+    )
 
-    for _ in range(COLLECTION_STEPS):
-        experience_replay.timestamp_data(train_env, agent.collect_policy)
+    plt.plot(returns)
+    plt.show()
 
-    experience, info = next(experience_replay.iterator)
-    train_loss = agent.train(experience).loss
-
-    if agent.train_step_counter.numpy() % EVAL_INTERVAL == 0:
-        avg_return = get_average_return(evaluation_env, agent.policy, EVAL_EPISODES)
-        print('Iteration {0} – Average Return = {1}, Loss = {2}.'.format(agent.train_step_counter.numpy(), avg_return, train_loss))
-        returns.append(avg_return)
-
-#####################################################################
-
-plt.plot(returns)
-plt.show()
+if __name__ == "__main__":
+    main()
