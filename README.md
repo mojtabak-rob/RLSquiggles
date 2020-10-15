@@ -15,4 +15,4 @@ To see a plot of environment state, run visualize.py with
 python3 visualize.py
 ```
 
-To get the .wav sound file, you must have the module wavio. If you don't have it, and can't get it, comment out the import wavio and make_soundfile() lines (two lines).
+To get the .wav sound file, you must have the module wavio. If you don't have it, and can't get it, comment out "import wavio" at top and "make_soundfile()" in main (two lines).
