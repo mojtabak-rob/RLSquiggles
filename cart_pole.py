@@ -10,9 +10,11 @@ from tf_agents.environments import tf_py_environment
 from tf_agents.policies.random_tf_policy import RandomTFPolicy
 from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuffer
 from tf_agents.trajectories import trajectory
+from tf_agents.policies.policy_saver import PolicySaver
 
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import numpy as np
 
 # Written by us imports
 from SquigglesEnvironment import SquigglesEnvironment
@@ -20,11 +22,11 @@ from experience_replay import ExperienceReplay
 from basic_agent import generic_dqn_agent # a function
 
 # Globals
-NUMBER_ITERATION = 20000
+NUMBER_ITERATION = 2000
 COLLECTION_STEPS = 1
 BATCH_SIZE = 64
-EVAL_EPISODES = 10
-EVAL_INTERVAL = 1000
+EVAL_EPISODES = 1
+EVAL_INTERVAL = 100
 
 def get_average_return(environment, policy, episodes=10):
 
@@ -75,7 +77,41 @@ def training_loop(agent, train_env, evaluation_env, experience_replay):
             avg_return = get_average_return(evaluation_env, agent.policy, EVAL_EPISODES)
             print('Iteration {0} – Average Return = {1}, Loss = {2}.'.format(agent.train_step_counter.numpy(), avg_return, train_loss))
             returns.append(avg_return)
+
+            show_current(1000, evaluation_env, agent.policy)
+
     return returns
+
+def show_current(ITER, env, policy):
+    N = env.observation_spec().shape[0]
+    state = env.reset()
+
+    the_hits = np.zeros(ITER)
+    agent_hits = []
+    rewards = []
+    for j in range(ITER):
+        a = policy.action(state)
+        print(a.action)
+        agent_hits.append(a.action)
+
+        state = env.step(a)
+        rewards.append(state.reward)
+
+        play = False
+        print(state.observation)
+        if np.any(state.observation == 0):
+            play = True
+        the_hits[j] = int(play)
+
+    plt.figure()
+    plt.plot(the_hits)
+    plt.plot(agent_hits)
+    plt.title("Action and space")
+
+    plt.figure()
+    plt.plot(rewards)
+    plt.title("Rewards")
+    plt.show()
 
 def main():
     agent, train_env, evaluation_env, experience_replay = init()
