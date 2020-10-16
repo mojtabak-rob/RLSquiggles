@@ -26,7 +26,7 @@ NUMBER_ITERATION = 2000
 COLLECTION_STEPS = 1
 BATCH_SIZE = 64
 EVAL_EPISODES = 1
-EVAL_INTERVAL = 100
+EVAL_INTERVAL = 300
 
 def get_average_return(environment, policy, episodes=10):
 
@@ -78,7 +78,7 @@ def training_loop(agent, train_env, evaluation_env, experience_replay):
             print('Iteration {0} – Average Return = {1}, Loss = {2}.'.format(agent.train_step_counter.numpy(), avg_return, train_loss))
             returns.append(avg_return)
 
-            show_current(1000, evaluation_env, agent.policy)
+            #show_current(1000, evaluation_env, agent.policy)
 
     return returns
 
@@ -120,6 +120,9 @@ def main():
         evaluation_env,
         experience_replay
     )
+
+    # save policy
+    PolicySaver(agent.policy).save('policy_saved')
 
     plt.plot(returns)
     plt.show()
