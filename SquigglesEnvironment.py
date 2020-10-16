@@ -131,12 +131,14 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             reward += 10*(2**int(-np.absolute(current_closeness_to_real_beat)))-1
 
             self._time_since_last_play = 0
+            self._time_since_real_plays = np.roll(self._time_since_real_plays,1)
+            self._time_since_real_plays[0] = 0
 
 
         if self._state >= 1000:
             #50 is a random constant here, should probably be tweaked
             #reward = 10-np.absolute(self._number_of_plays - self._number_of_real_plays)*5
-            return ts.termination(self._time_since_real_plays, 0)
+            return ts.termination(self._time_since_real_plays, reward)
 
         return ts.transition(
             self._time_since_real_plays, reward=reward, discount=1.0)
