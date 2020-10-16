@@ -54,6 +54,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         self._episode_ended = False
         self._time_since_real_plays = np.zeros(self._time_since_real_plays.shape).astype(np.int32)
         self._number_of_plays = 0
+        self._time_since_last_play = 0
         self._number_of_real_plays = 0
         self._squiggles_list = [Squiggles() for i in range(len(self._squiggles_list))]
         self._squiggles_input = [0 for i in range(16)]
@@ -131,8 +132,6 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             reward += 10*(2**int(-np.absolute(current_closeness_to_real_beat)))-1
 
             self._time_since_last_play = 0
-            self._time_since_real_plays = np.roll(self._time_since_real_plays,1)
-            self._time_since_real_plays[0] = 0
 
 
         if self._state >= 1000:
