@@ -113,7 +113,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         reward = 0
 
         if action==0:
-            reward = -self._time_since_last_play*0.01
+            reward = -3
 
         if action == 1:
             self._number_of_plays += 1
@@ -129,7 +129,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             current_i = int((closest_beat/self._time_between_squiggles_beats)%16)
             self._squiggles_input[current_i] = 1
 
-            reward += 10*(2**int(-np.absolute(current_closeness_to_real_beat)))-1
+            reward += 20*(3**int(-np.absolute(current_closeness_to_real_beat)))-5
 
             self._time_since_last_play = 0
 
@@ -140,4 +140,4 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             return ts.termination(self._time_since_real_plays, reward)
 
         return ts.transition(
-            self._time_since_real_plays, reward=reward, discount=1.0)
+            self._time_since_real_plays, reward=reward, discount=0.9)
