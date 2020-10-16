@@ -91,14 +91,12 @@ def show_current(ITER, env, policy):
     rewards = []
     for j in range(ITER):
         a = policy.action(state)
-        print(a.action)
         agent_hits.append(a.action)
 
         state = env.step(a)
         rewards.append(state.reward)
 
         play = False
-        print(state.observation)
         if np.any(state.observation == 0):
             play = True
         the_hits[j] = int(play)
