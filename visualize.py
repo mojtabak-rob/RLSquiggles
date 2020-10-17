@@ -1,5 +1,5 @@
 """ File for plotting the environment observation  for one episode, and making
-a soundfile of the environment in that episode """
+a soundfile of the environment and agent in that episode """
 
 import tensorflow as tf
 from tf_agents.environments import tf_py_environment
