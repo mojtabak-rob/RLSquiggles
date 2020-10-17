@@ -115,9 +115,10 @@ def main():
     plot_the_hits(the_hits, actions, ITER)
     plt.show()
 
-    make_soundfile(the_hits, ITER, "env_sound") # comment out if you can't get wavio
-    make_soundfile(actions, ITER, "action_sound") # comment out if you can't get wavio
-    make_joint_soundfile(the_hits, actions, ITER, "joint_sound") # comment out if you can't get wavio
+    # comment out if you can't get wavio
+    make_soundfile(the_hits, ITER, "env_sound")
+    make_soundfile(actions, ITER, "action_sound")
+    make_joint_soundfile(the_hits, actions, ITER, "joint_sound")
 
 if __name__ == "__main__":
     main()
