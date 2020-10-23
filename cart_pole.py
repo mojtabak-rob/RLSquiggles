@@ -47,8 +47,8 @@ def get_average_return(environment, policy, episodes=10):
     return avg_return.numpy()[0]
 
 def init():
-    train_env = SquigglesEnvironment()
-    evaluation_env = SquigglesEnvironment()
+    train_env = SquigglesEnvironment(num_notes_out=4)
+    evaluation_env = SquigglesEnvironment(num_notes_out=4)
 
     train_env = tf_py_environment.TFPyEnvironment(train_env)
     evaluation_env = tf_py_environment.TFPyEnvironment(evaluation_env)
