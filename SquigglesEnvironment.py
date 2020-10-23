@@ -21,9 +21,9 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=1, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(num_notes_out,), dtype=np.int32, minimum=0, name='observation')
+            shape=(num_notes_out+1,), dtype=np.int32, minimum=0, name='observation')
         self._state = 0
-        self._time_since_real_plays = np.array([0 for _ in range(num_notes_out)]).astype(np.int32)
+        self._time_since_real_plays = np.array([0 for _ in range(num_notes_out+1)]).astype(np.int32)
         self._episode_ended = False
         self._time_between_squiggles_beats = 60*100//(4*bpm)
         self._time_since_last_play = 0
@@ -52,15 +52,16 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
     def _reset(self):
         self._state = 0
         self._episode_ended = False
-        self._time_since_real_plays = np.zeros(self._time_since_real_plays.shape).astype(np.int32)
+        #self._time_since_real_plays = np.zeros(self._time_since_real_plays.shape).astype(np.int32)
         self._number_of_plays = 0
-        self._time_since_last_play = 0
+        #self._time_since_last_play = 0
         self._number_of_real_plays = 0
-        self._squiggles_list = [Squiggles() for i in range(len(self._squiggles_list))]
-        self._squiggles_input = [0 for i in range(16)]
-        for squig in self._squiggles_list:
-            squig.update_o()
+        #self._squiggles_list = [Squiggles() for i in range(len(self._squiggles_list))]
+        #self._squiggles_input = [0 for i in range(16)]
+        #for squig in self._squiggles_list:
+        #    squig.update_o()
 
+        """
         notes_filled = 1
         for i in range(1,17):
             output = self._squiggles_list[-1].o
@@ -68,7 +69,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
                 self._time_since_real_plays[-notes_filled] = self._time_between_squiggles_beats*i
                 notes_filled+=1
                 if notes_filled > len(self._time_since_real_plays):
-                    break
+                    break"""
 
         return ts.restart(self._time_since_real_plays)
 
@@ -102,7 +103,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         if self._state%self._time_between_squiggles_beats == 0 and self._squiggles_list[-1].o[int((self._state/self._time_between_squiggles_beats)%16)] == 1:
             #print("I have played", self._state)
             play = True
-            self._time_since_real_plays = np.roll(self._time_since_real_plays,1)
+            self._time_since_real_plays[:-1] = np.roll(self._time_since_real_plays[:-1],1)
             self._time_since_real_plays[0] = 0
 
 
@@ -113,12 +114,13 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         reward = 0
 
         if action==0:
-            reward = -3
+            current_closeness_to_real_beat = self._state%self._time_between_squiggles_beats
+            reward -= 50*(10**int(-np.absolute(current_closeness_to_real_beat)))-(10/self._time_between_squiggles_beats)
 
         if action == 1:
             self._number_of_plays += 1
-            if self._time_since_last_play < self._time_between_squiggles_beats/3:
-                reward -= 3 #Random number, probably needs tweaking
+            #if self._time_since_last_play < self._time_between_squiggles_beats/3:
+                #reward -= 3 #Random number, probably needs tweaking
 
             current_closeness_to_real_beat = self._state%self._time_between_squiggles_beats
             closest_beat = self._state-current_closeness_to_real_beat
@@ -129,12 +131,13 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             current_i = int((closest_beat/self._time_between_squiggles_beats)%16)
             self._squiggles_input[current_i] = 1
 
-            reward += 20*(10**int(-np.absolute(current_closeness_to_real_beat)))-5
+            reward += 50*(3**int(-np.absolute(current_closeness_to_real_beat)))-10
 
             self._time_since_last_play = 0
 
+        self._time_since_real_plays[-1] = self._time_since_last_play
 
-        if self._state >= 1000:
+        if self._state >= 6000:
             #50 is a random constant here, should probably be tweaked
             #reward = 10-np.absolute(self._number_of_plays - self._number_of_real_plays)*5
             return ts.termination(self._time_since_real_plays, reward)

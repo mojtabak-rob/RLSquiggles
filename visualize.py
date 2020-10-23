@@ -23,6 +23,7 @@ def get_beats(N, ITER, env):
 
     for _ in range(ITER):
         # Saving action
+        print(state.observation[0][-1])
         a = policy.action(state)
         actions.append(int(a.action[0]))
 
@@ -32,7 +33,7 @@ def get_beats(N, ITER, env):
             beats[i].append(state.observation[0][i]) # Why was it nested?
 
         # Saving the hits
-        play = np.any(state.observation == 0)
+        play = state.observation[0][0] == 0
         the_hits.append(int(play))
 
     return beats, the_hits, actions
