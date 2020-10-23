@@ -3,6 +3,7 @@
 .train takes an experience from a replay buffer """
 
 import tensorflow as tf
+from tf_agents.policies.tf_policy import TFPolicy
 from tf_agents.networks import q_network
 from tf_agents.agents.dqn import dqn_agent
 from tf_agents.utils import common
@@ -19,12 +20,15 @@ def generic_dqn_agent(env: TFPyEnvironment) -> (dqn_agent.DqnAgent, q_network.QN
         dqn_agent.DqnAgent: The agent to train
         q_network.QNetwork: The network used in the agent
     """
+    print(env.action_spec())
+
     q_net = q_network.QNetwork(
       env.observation_spec(),
       env.action_spec(),
-      fc_layer_params=(3,3))
+      fc_layer_params=(3,3,3),
+      activation_fn=tf.keras.activations.relu)
 
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.03)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=0.1)
 
     agent = dqn_agent.DqnAgent(
       env.time_step_spec(),
@@ -35,25 +39,37 @@ def generic_dqn_agent(env: TFPyEnvironment) -> (dqn_agent.DqnAgent, q_network.QN
       train_step_counter=tf.Variable(0)
     )
 
+    """def observation_and_action_constraint_splitter(observation):
+        action_mask = [1,1]
+        if observation[0][-1] > 5:
+            action_mask[0] = 1
+        return observation, tf.convert_to_tensor(action_mask, dtype=np.int32)
+
+    agent.policy._observation_and_action_constraint_splitter = (
+        observation_and_action_constraint_splitter
+    )"""
+    #tf_agents.policies.greedy_policy.GreedyPolicy
+
     agent.initialize()
 
     return agent, q_net
 
 #########################################################################
 
-env = SimpleRhythmEnvironment()
-env = TFPyEnvironment(env)
+if __name__ == "__main__":
+    env = SimpleRhythmEnvironment()
+    env = TFPyEnvironment(env)
 
-####### Example of use ##################################################
+    ####### Example of use #############################################
 
-agent, net = generic_dqn_agent(env)
+    agent, net = generic_dqn_agent(env)
 
-s = env.reset()
-step_type, reward, discount, observation = s
+    s = env.reset()
+    step_type, reward, discount, observation = s
 
-step = agent.policy.action(s)
-state = env.step(step.action)
-step2 = agent.policy.action(state)
-#state2 = env.step2(step.action)
+    step = agent.policy.action(s)
+    state = env.step(step.action)
+    step2 = agent.policy.action(state)
+    #state2 = env.step2(step.action)
 
-#agent.train(experience)
+    #agent.train(experience)
