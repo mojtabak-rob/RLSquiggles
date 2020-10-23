@@ -21,9 +21,9 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=1, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(num_notes_out,), dtype=np.int32, minimum=0, name='observation')
+            shape=(num_notes_out+1,), dtype=np.int32, minimum=0, name='observation')
         self._state = 0
-        self._time_since_real_plays = np.array([0 for _ in range(num_notes_out)]).astype(np.int32)
+        self._time_since_real_plays = np.array([0 for _ in range(num_notes_out+1)]).astype(np.int32)
         self._episode_ended = False
         self._time_between_squiggles_beats = 60*100//(4*bpm)
         self._time_since_last_play = 0
@@ -103,7 +103,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         if self._state%self._time_between_squiggles_beats == 0 and self._squiggles_list[-1].o[int((self._state/self._time_between_squiggles_beats)%16)] == 1:
             #print("I have played", self._state)
             play = True
-            self._time_since_real_plays = np.roll(self._time_since_real_plays,1)
+            self._time_since_real_plays[:-1] = np.roll(self._time_since_real_plays[:-1],1)
             self._time_since_real_plays[0] = 0
 
 
@@ -131,10 +131,11 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             current_i = int((closest_beat/self._time_between_squiggles_beats)%16)
             self._squiggles_input[current_i] = 1
 
-            reward += 50*(10**int(-np.absolute(current_closeness_to_real_beat)))-10
+            reward += 50*(3**int(-np.absolute(current_closeness_to_real_beat)))-10
 
             self._time_since_last_play = 0
 
+        self._time_since_real_plays[-1] = self._time_since_last_play
 
         if self._state >= 6000:
             #50 is a random constant here, should probably be tweaked

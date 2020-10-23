@@ -32,7 +32,7 @@ def get_beats(N, ITER, env):
             beats[i].append(state.observation[0][i]) # Why was it nested?
 
         # Saving the hits
-        play = np.any(state.observation == 0)
+        play = state.observation[0][0] == 0
         the_hits.append(int(play))
 
     return beats, the_hits, actions
@@ -107,7 +107,7 @@ def main():
     env = tf_py_environment.TFPyEnvironment(env)
 
     N = env.observation_spec().shape[0]
-    ITER = 1000
+    ITER = 10000
 
     beats, the_hits, actions = get_beats(N, ITER, env)
 
