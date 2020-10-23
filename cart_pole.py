@@ -125,6 +125,7 @@ def main():
     PolicySaver(agent.policy).save('policy_saved')
 
     plt.plot(returns)
+    plt.title("Rewards overall")
     plt.show()
 
 if __name__ == "__main__":
