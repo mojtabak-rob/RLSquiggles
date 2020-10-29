@@ -20,12 +20,11 @@ def generic_dqn_agent(env: TFPyEnvironment) -> (dqn_agent.DqnAgent, q_network.QN
         dqn_agent.DqnAgent: The agent to train
         q_network.QNetwork: The network used in the agent
     """
-    print(env.action_spec())
 
     q_net = q_network.QNetwork(
       env.observation_spec(),
       env.action_spec(),
-      fc_layer_params=(8, 14, 8, 3),
+      fc_layer_params=(5, 3),
       activation_fn=tf.keras.activations.relu)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.03)
@@ -36,7 +35,8 @@ def generic_dqn_agent(env: TFPyEnvironment) -> (dqn_agent.DqnAgent, q_network.QN
       q_network=q_net,
       optimizer=optimizer,
       td_errors_loss_fn=common.element_wise_squared_loss,
-      train_step_counter=tf.Variable(0)
+      train_step_counter=tf.Variable(0),
+      epsilon_greedy=0.5
     )
 
     """def observation_and_action_constraint_splitter(observation):

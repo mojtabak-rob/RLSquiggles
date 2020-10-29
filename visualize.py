@@ -108,7 +108,7 @@ def main():
     env = tf_py_environment.TFPyEnvironment(env)
 
     N = env.observation_spec().shape[0]
-    ITER = 10000
+    ITER = 3000
 
     beats, the_hits, actions = get_beats(N, ITER, env)
 
