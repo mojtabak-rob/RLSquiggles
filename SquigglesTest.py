@@ -7,7 +7,7 @@ from ComplexRhythmEnvironment import ComplexRhythmEnvironment
 def make_muted_sine(hits, f, ITER):
     # Source: https://pypi.org/project/wavio/
     # Parameters
-    time_step_length = 120/60/16 #s
+    time_step_length = 1/(120/60)/4 #s
     samples = int(1/time_step_length)  # samples per seconds of environment
     rate = int(samples*800)             # samples per second
     T = int(time_step_length*ITER)     # sample duration (seconds)
