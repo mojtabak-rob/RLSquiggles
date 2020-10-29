@@ -22,10 +22,10 @@ from experience_replay import ExperienceReplay
 from basic_agent import generic_dqn_agent # a function
 
 # Globals
-NUMBER_ITERATION = 2000
-COLLECTION_STEPS = 2
+NUMBER_ITERATION = 20000
+COLLECTION_STEPS = 3
 BATCH_SIZE = 64
-EVAL_EPISODES = 1
+EVAL_EPISODES = 3
 EVAL_INTERVAL = 1000
 
 def get_average_return(environment, policy, episodes=10):
@@ -47,8 +47,8 @@ def get_average_return(environment, policy, episodes=10):
     return avg_return.numpy()[0]
 
 def init():
-    train_env = SquigglesEnvironment(num_notes_out=4)
-    evaluation_env = SquigglesEnvironment(num_notes_out=4)
+    train_env = SquigglesEnvironment()
+    evaluation_env = SquigglesEnvironment()
 
     train_env = tf_py_environment.TFPyEnvironment(train_env)
     evaluation_env = tf_py_environment.TFPyEnvironment(evaluation_env)
@@ -78,7 +78,7 @@ def training_loop(agent, train_env, evaluation_env, experience_replay):
             print('Iteration {0} – Average Return = {1}, Loss = {2}.'.format(agent.train_step_counter.numpy(), avg_return, train_loss))
             returns.append(avg_return)
 
-            #show_current(1000, evaluation_env, agent.policy)
+            show_current(1000, evaluation_env, agent.policy)
 
     return returns
 
