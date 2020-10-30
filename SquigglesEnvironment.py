@@ -16,14 +16,14 @@ from tf_agents.trajectories import time_step as ts
 tf.compat.v1.enable_v2_behavior()
 
 class SquigglesEnvironment(py_environment.PyEnvironment):
-    def __init__(self, bpm = 120, num_squiggles = 2, num_notes_out=2):
+    def __init__(self, bpm = 120, num_squiggles = 2):
         super(SquigglesEnvironment, self).__init__()
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=1, name='action')
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(num_notes_out*2-1,), dtype=np.int32, minimum=0, name='observation')
+            shape=(4,), dtype=np.int32, minimum=0, name='observation')
         self._state = 0
-        self._time_since_real_plays = np.array([0 for _ in range(num_notes_out*2-1)]).astype(np.int32)
+        self._time_since_real_plays = np.array([0 for _ in range(4)]).astype(np.int32)
         self._episode_ended = False
         self._time_between_squiggles_beats = np.random.randint(10,20) #60*100//(4*bpm)
         self._time_since_last_play = 0
@@ -40,7 +40,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             if output[-i] == 1:
                 self._time_since_real_plays[notes_filled] = self._time_between_squiggles_beats*i
                 notes_filled+=1
-                if notes_filled > num_notes_out:
+                if notes_filled > 1:
                     break
         self._calculate_time_difference()
 
@@ -58,6 +58,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
 
         #self._time_since_real_plays[len(notes):len(notes)+len(difference)] = difference
         self._time_since_real_plays[2] = self._time_since_real_plays[1] - self._time_since_real_plays[0]
+
 
     def _reset(self):
         self._state = 0
@@ -86,10 +87,11 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         return ts.restart(self._time_since_real_plays)
 
     def _step(self, action):
+        #print(action)
         if self._episode_ended:
             return self._reset()
 
-        reward = 0
+        reward = 1
 
         if action == 1 or action == 0:
             self._state += 1
@@ -99,9 +101,23 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         else:
             raise ValueError('`action` should be 0 or 1.')
 
+        if self._state%(self._time_between_squiggles_beats*16) == 0:
+            self._squiggles_list[0].update_h(self._squiggles_input)
+            for i in range(1, len(self._squiggles_list)):
+                self._squiggles_list[i-1].update_o()
+                out_in = self._squiggles_list[i-1].o
+                self._squiggles_list[i].update_h(out_in)
+            self._squiggles_list[-1].update_o()
+            print(self._squiggles_input)
+            self._squiggles_input = [0 for i in range(16)]
+
+        play = False
+        if self._state%self._time_between_squiggles_beats == 0 and self._squiggles_list[-1].o[int((self._state/self._time_between_squiggles_beats)%16)] == 1:
+            play = True
+
         if action==0:
-            if self._time_since_last_play > self._time_between_squiggles_beats*8:
-                reward -= 2
+            #if self._time_since_last_play > self._time_between_squiggles_beats*8:
+            reward -= 1.5
             current_closeness_to_real_beat = self._state%self._time_between_squiggles_beats
             current_closeness_to_real_beat -= self._time_between_squiggles_beats
             #if current_closeness_to_real_beat == 0:
@@ -131,33 +147,26 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             #print(current_closeness_to_real_beat)
             #print(current_closeness_to_real_beat,(6+current_closeness_to_real_beat)**3, self._state, self._time_since_real_plays)
             #print(self._time_since_real_plays)
-            reward += 11 if self._time_since_real_plays[0]+1 in self._time_since_real_plays[2:3] else -2
+            reward += 1.5 if play else 0
+            reward += 1.5 if self._state%self._time_between_squiggles_beats == 0 else 0
+            reward += 11 if self._time_since_real_plays[0] == self._time_since_real_plays[2] else -1.75
 
             self._time_since_last_play = 0
 
 
 
-        if self._state%(self._time_between_squiggles_beats*16) == 0:
-            self._squiggles_list[0].update_h(self._squiggles_input)
-            for i in range(1, len(self._squiggles_list)):
-                self._squiggles_list[i-1].update_o()
-                out_in = self._squiggles_list[i-1].o
-                self._squiggles_list[i].update_h(out_in)
-            self._squiggles_list[-1].update_o()
-            print(self._squiggles_input)
-            self._squiggles_input = [0 for i in range(16)]
 
-        play = False
+
+
         """if self._state%self._time_between_squiggles_beats == 0:
             print("Here I am")
             print((self._state/self._time_between_squiggles_beats)%16)
             print(self._squiggles_list[-1].o)
             print(int((self._state/self._time_between_squiggles_beats)%16))
             print(self._squiggles_list[-1].o[int((self._state/self._time_between_squiggles_beats)%16)])"""
-        if self._state%self._time_between_squiggles_beats == 0 and self._squiggles_list[-1].o[int((self._state/self._time_between_squiggles_beats)%16)] == 1:
+        if play:
             #print("I have played", self._state)
-            play = True
-            self._time_since_real_plays[:-1] = np.roll(self._time_since_real_plays[:-1],1)
+            self._time_since_real_plays[:2] = np.roll(self._time_since_real_plays[:2],1)
 
             self._time_since_real_plays[0] = 0
             self._calculate_time_difference()
@@ -166,7 +175,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         output = 1 if play else 0
         self._number_of_real_plays += output
 
-
+        self._time_since_real_plays[3] = action
         #self._time_since_real_plays[-1] = self._time_since_last_play
 
         if self._state >= 1000:
