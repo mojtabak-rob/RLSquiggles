@@ -3,8 +3,8 @@ Depp RL for Dr. Squiggles
 
 Just for now, as we develop:
 
-### Running current training loop 
-run cart_pole.py with 
+### Running current training loop
+run cart_pole.py with
 ```
 python3 cart_pole.py
 ```
@@ -18,3 +18,10 @@ python3 visualize.py
 ```
 
 To get the .wav sound files, you must have the module wavio. If you don't have it, and can't get it, comment out "import wavio" at top and "make_soundfile()" in main (four lines).
+
+If you instead want a visual representation that plays music, run pygame_play.py with
+```
+python3 pygame_play.py
+```
+
+This program requires that you have pygame installed.
