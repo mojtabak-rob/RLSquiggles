@@ -7,21 +7,21 @@ import numpy as np
 import tensorflow as tf
 from tf_agents.environments import tf_py_environment
 
-from halvors_good_policy.SquigglesEnvironment import SquigglesEnvironment # Change this and policy_saved
+from versions.mirror_no_silence_punish.SquigglesEnvironment import SquigglesEnvironment # Change this and policy_saved
 
 # Together, these two control the frequency of played notes.
 # Every frame, a new note will be fetched
-FPS = 60
-STEPS_ACROSS_SCREEN = 6
+FPS = 100
+STEPS_ACROSS_SCREEN = 5
 
 # Other constants
 HEIGHT = 700 # Height and width of screen. All sizes scale with these
 WIDTH = 1300
-ITER = 3000 # 3 episodes are run
+ITER = 1000 # 1 episodes are run
 
 def get_beats(N, ITER, env):
     state = env.reset()
-    policy = tf.saved_model.load('halvors_good_policy/policy_saved') # Change this and env
+    policy = tf.saved_model.load('versions/mirror_no_silence_punish/policy_saved') # Change this and env
 
     beats = [[] for _ in range(N)]
     actions = []
@@ -29,7 +29,6 @@ def get_beats(N, ITER, env):
 
     for _ in range(ITER):
         # Saving action
-        print(state.observation[0][0])
         a = policy.action(state)
         actions.append(int(a.action[0]))
 
@@ -64,10 +63,18 @@ class SoundBarrier(DrawableRectangle):
         DrawableRectangle.__init__(self, position_x, position_y, height, width, color)
         self._slider_list = slider_list
 
+        self._cooldown = [0 for _ in range(len(slider_list))]
+
     def update(self):
-        for slider in self._slider_list:
+        for i in range(len(self._slider_list)):
+            slider = self._slider_list[i]
             if slider.has_beat_at(x_pos = self._pos_x+self._width//2):
-                slider.play()
+                if self._cooldown[i] == 0:
+                    slider.play()
+                    self._cooldown[i] = 5
+
+            if self._cooldown[i] > 0:
+                self._cooldown[i] -= 1
 
 class Beat(DrawableRectangle):
     def __init__(self, position_x, position_y, height, width, color):
@@ -106,7 +113,7 @@ class SoundSlider:
 
     def play(self):
 
-        self._my_effects[self._effect_counter-1 if self._effect_counter > 0 else -1].stop()
+        self._my_effects[self._effect_counter].stop()
         self._my_effects[self._effect_counter].play()
         self._effect_counter += 1
         if self._effect_counter >= len(self._my_effects):
@@ -194,9 +201,17 @@ def main():
     """
 
     """
-    ,
     "sound_effects/9008__jamieblam__metallophone/146096__jamieblam__2e-hard.wav",
+    ,
     "sound_effects/9008__jamieblam__metallophone/146100__jamieblam__2f-hard.wav"
+    ,
+    ,
+    ,
+    "sound_effects/9008__jamieblam__metallophone/146082__jamieblam__1f-hard.wav",
+
+    ,
+    "sound_effects/9008__jamieblam__metallophone/146091__jamieblam__2c-hard.wav",
+    "sound_effects/9008__jamieblam__metallophone/146093__jamieblam__2b-hard.wav"
     """
 
     env_slider = SoundSlider(
@@ -206,12 +221,10 @@ def main():
         height = HEIGHT//7,
         width = WIDTH,
         color = (100,100,255),
-        soundfile_name = [
-            "sound_effects/9008__jamieblam__metallophone/146079__jamieblam__1c-hard.wav",
-            "sound_effects/9008__jamieblam__metallophone/146077__jamieblam__1d-hard.wav",
-            "sound_effects/9008__jamieblam__metallophone/146084__jamieblam__1e-hard.wav",
-            "sound_effects/9008__jamieblam__metallophone/146082__jamieblam__1f-hard.wav",
-            "sound_effects/9008__jamieblam__metallophone/146087__jamieblam__1g-hard.wav"
+        soundfile_name = [ #"sound_effects/9008__jamieblam__metallophone/146079__jamieblam__1c-hard.wav"#"sound_effects/9008__jamieblam__metallophone/146097__jamieblam__2d-hard.wav"
+
+            "sound_effects/drum11.wav"
+
         ]
     )
     agent_slider = SoundSlider(
@@ -221,10 +234,9 @@ def main():
         height = HEIGHT//7,
         width = WIDTH,
         color = (255,150,30),
-        soundfile_name = [
-            "sound_effects/9008__jamieblam__metallophone/146093__jamieblam__2b-hard.wav",
-            "sound_effects/9008__jamieblam__metallophone/146091__jamieblam__2c-hard.wav",
-            "sound_effects/9008__jamieblam__metallophone/146097__jamieblam__2d-hard.wav"
+        soundfile_name = [ #"sound_effects/9008__jamieblam__metallophone/146084__jamieblam__1e-hard.wav" #"sound_effects/9008__jamieblam__metallophone/146087__jamieblam__1g-hard.wav"
+            "sound_effects/first_clap.wav"
+
         ]
     )
 
@@ -237,18 +249,22 @@ def main():
         slider_list = [env_slider, agent_slider]
     )
 
+    start = False
     while True:
         DISPLAY.fill((0,0,0))
         pygame.event.pump()
 
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    start = True
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-
-        env_slider.update()
-        agent_slider.update()
-        barrier.update()
+        if start:
+            env_slider.update()
+            agent_slider.update()
+            barrier.update()
 
         env_slider.render(DISPLAY)
         agent_slider.render(DISPLAY)

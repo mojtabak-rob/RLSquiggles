@@ -6,7 +6,7 @@ import abc
 import tensorflow as tf
 import numpy as np
 
-from Squiggles import Squiggles
+from versions.mirror_no_silence_punish.Squiggles import Squiggles
 
 from tf_agents.environments import py_environment
 from tf_agents.environments import utils
