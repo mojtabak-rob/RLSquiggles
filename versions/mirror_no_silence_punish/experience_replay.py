@@ -10,7 +10,7 @@ class ExperienceReplay(object):
         self._replay_buffer = TFUniformReplayBuffer(
             data_spec=agent.collect_data_spec,
             batch_size=enviroment.batch_size,
-            max_length=100000)
+            max_length=50000)
 
         self._random_policy = RandomTFPolicy(enviroment.time_step_spec(),
                                                 enviroment.action_spec())
@@ -29,6 +29,17 @@ class ExperienceReplay(object):
     def _fill_buffer(self, enviroment, policy, steps):
         for _ in range(steps):
             self.timestamp_data(enviroment, policy)
+
+    def _timestamp_data(self, environment, policy):
+        time_step = environment.current_time_step()
+        action_step = policy.action(time_step)
+        next_time_step = environment.step(action_step.action)
+
+
+        if next_time_step.reward > 0:
+            timestamp_trajectory = trajectory.from_transition(time_step, action_step, next_time_step)
+
+            self._replay_buffer.add_batch(timestamp_trajectory)
 
     def timestamp_data(self, environment, policy):
         time_step = environment.current_time_step()

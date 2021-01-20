@@ -17,11 +17,9 @@ from tqdm import tqdm
 import numpy as np
 
 # Written by us imports
-from SquigglesEnvironment2 import SquigglesEnvironment
+from SquigglesEnvironment import SquigglesEnvironment
 from experience_replay import ExperienceReplay
 from basic_agent import generic_dqn_agent # a function
-
-from tf_agents.environments import suite_gym
 
 # Globals
 NUMBER_ITERATION = 20000
@@ -29,7 +27,6 @@ COLLECTION_STEPS = 1
 BATCH_SIZE = 64
 EVAL_EPISODES = 10
 EVAL_INTERVAL = 1000
-SHOW_INTERVAL = EVAL_INTERVAL*4
 
 def get_average_return(environment, policy, episodes=10):
 
@@ -81,8 +78,7 @@ def training_loop(agent, train_env, evaluation_env, experience_replay):
             print('Iteration {0} – Average Return = {1}, Loss = {2}.'.format(agent.train_step_counter.numpy(), avg_return, train_loss))
             returns.append(avg_return)
 
-            if agent.train_step_counter.numpy() % SHOW_INTERVAL == 0:
-                show_current(1000, evaluation_env, agent.policy)
+            #show_current(1000, evaluation_env, agent.policy)
 
     return returns
 
@@ -100,7 +96,9 @@ def show_current(ITER, env, policy):
         state = env.step(a)
         rewards.append(state.reward)
 
-        play = state.observation[0][0] == 0
+        play = False
+        if np.any(state.observation[0][0] == 0):
+            play = True
         the_hits[j] = int(play)
 
     plt.figure()
