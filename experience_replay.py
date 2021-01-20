@@ -30,6 +30,17 @@ class ExperienceReplay(object):
         for _ in range(steps):
             self.timestamp_data(enviroment, policy)
 
+    def _timestamp_data(self, environment, policy):
+        time_step = environment.current_time_step()
+        action_step = policy.action(time_step)
+        next_time_step = environment.step(action_step.action)
+
+
+        if next_time_step.reward > 0:
+            timestamp_trajectory = trajectory.from_transition(time_step, action_step, next_time_step)
+
+            self._replay_buffer.add_batch(timestamp_trajectory)
+
     def timestamp_data(self, environment, policy):
         time_step = environment.current_time_step()
         action_step = policy.action(time_step)
