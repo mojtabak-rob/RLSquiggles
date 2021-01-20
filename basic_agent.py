@@ -9,7 +9,7 @@ from tf_agents.agents.dqn import dqn_agent
 from tf_agents.utils import common
 from tf_agents.environments.tf_py_environment import TFPyEnvironment
 
-from SimpleRhythmEnvironment import SimpleRhythmEnvironment
+from env.SimpleRhythmEnvironment import SimpleRhythmEnvironment
 
 def generic_dqn_agent(env: TFPyEnvironment) -> (dqn_agent.DqnAgent, q_network.QNetwork):
     """ Function that returns a generic dqn agent

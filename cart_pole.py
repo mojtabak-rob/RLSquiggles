@@ -17,15 +17,15 @@ from tqdm import tqdm
 import numpy as np
 
 # Written by us imports
-from SquigglesEnvironment import SquigglesEnvironment
+from env.SquigglesEnvironment import SquigglesEnvironment
 from experience_replay import ExperienceReplay
 from basic_agent import generic_dqn_agent # a function
 
 # Globals
 NUMBER_ITERATION = 20000
-COLLECTION_STEPS = 3
+COLLECTION_STEPS = 1
 BATCH_SIZE = 64
-EVAL_EPISODES = 3
+EVAL_EPISODES = 10
 EVAL_INTERVAL = 1000
 
 def get_average_return(environment, policy, episodes=10):
@@ -78,7 +78,7 @@ def training_loop(agent, train_env, evaluation_env, experience_replay):
             print('Iteration {0} – Average Return = {1}, Loss = {2}.'.format(agent.train_step_counter.numpy(), avg_return, train_loss))
             returns.append(avg_return)
 
-            show_current(1000, evaluation_env, agent.policy)
+            #show_current(1000, evaluation_env, agent.policy)
 
     return returns
 
@@ -97,7 +97,7 @@ def show_current(ITER, env, policy):
         rewards.append(state.reward)
 
         play = False
-        if np.any(state.observation == 0):
+        if np.any(state.observation[0][0] == 0):
             play = True
         the_hits[j] = int(play)
 
