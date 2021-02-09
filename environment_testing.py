@@ -7,10 +7,15 @@ import wavio
 
 from versions.mirror_no_silence_punish.SquigglesEnvironment import SquigglesEnvironment
 
-# A way to label mirror_no_silence_punish's environment observations
+## A way to label mirror_no_silence_punish's environment observations
+# OBS: 2 versions:
+# - observation[0] == sixteenth    means mirroring
+# - observation[0]%sixteenth == 0  means sixteenth notes
+#
 def label(observation):
     sixteenth = observation[-1]
 
+    # if observation[0] == sixteenth:
     if observation[0]%sixteenth == 0:
         return 1
     return 0
