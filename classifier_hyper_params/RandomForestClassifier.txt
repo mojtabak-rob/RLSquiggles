@@ -1,0 +1,5 @@
+# Hyperparameters for RandomForestClassifier
+
+# For the training
+balanced_squig = True
+shuffled_squig = True

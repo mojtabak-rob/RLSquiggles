@@ -1,0 +1,6 @@
+# Hyperparameters for KNeighborsClassifier
+n_neighbors = 3
+
+# For the training
+balanced_squig = True
+shuffled_squig = False

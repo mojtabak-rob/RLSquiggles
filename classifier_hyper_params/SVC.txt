@@ -1,0 +1,6 @@
+# Hyperparameters for SVC
+C = 100
+
+# For the training
+balanced_squig = True
+shuffled_squig = False
