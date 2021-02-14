@@ -9,14 +9,14 @@ from env.SquigglesEnvironment import SquigglesEnvironment
 
 ## A way to label mirror_no_silence_punish's environment observations
 # OBS: 2 versions:
-# - observation[0] == sixteenth    means mirroring
-# - observation[0]%sixteenth == 0  means sixteenth notes
+# - observation[0]+1 == sixteenth    means mirroring, predictive
+# - observation[0]%sixteenth == 0    means sixteenth notes, not-predictive
 #
 def label(observation):
     sixteenth = observation[-2]
 
-    if sixteenth == 0 or observation[0]%sixteenth == 0:
-    # if observation[0] == sixteenth:
+    # if sixteenth == 0 or observation[0]%sixteenth == 0:
+    if observation[0]+1 == sixteenth:
 
         return 1
     return 0
