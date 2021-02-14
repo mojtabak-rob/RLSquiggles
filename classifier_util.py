@@ -15,11 +15,65 @@ from env.SquigglesEnvironment import SquigglesEnvironment
 def label(observation):
     sixteenth = observation[-2]
 
-    if observation[0]%sixteenth == 0:
+    if sixteenth == 0 or observation[0]%sixteenth == 0:
     # if observation[0] == sixteenth:
 
         return 1
     return 0
+
+def score(classifier_class, kwargs):
+    # Kwargs initially contains some training parameters too
+    balanced = kwargs["balanced_squig"]
+    shuffled = kwargs["shuffled_squig"]
+    del kwargs["balanced_squig"]
+    del kwargs["shuffled_squig"]
+
+    # Get data
+    x_data, y_data = get_balanced_dataset(2000,verbose=False) if balanced else \
+                     get_dataset(2000,verbose=False)
+    if shuffled:
+        x_data, y_data = shuffle_dataset(x_data, y_data,verbose=False)
+
+    # Fit
+    classifier = classifier_class(**kwargs)
+    classifier.fit(x_data, y_data)
+
+    # Predict
+    n = 3
+    presicion_0 = 0
+    presicion_1 = 0
+    for _ in range(n):
+        confusion = get_confusion(classifier)
+
+        all_0 = confusion[0][0] + confusion[0][1]
+        all_1 = confusion[1][0] + confusion[1][1]
+
+        presicion_0 += confusion[0][0] / all_0
+        presicion_1 += confusion[1][1] / all_1
+    presicion_0 = presicion_0 / n
+    presicion_1 = presicion_1 / n
+
+    kwargs["balanced_squig"] = balanced
+    kwargs["shuffled_squig"] = shuffled
+
+    return min(presicion_0, presicion_1)
+
+# A confusion matrix on the form [gold standard, classifier prediction]
+def get_confusion(classifier):
+    ITER = 1000
+    env = SquigglesEnvironment()
+    time_step = env.reset()
+
+    confusion = [[0,0],[0,0]]
+    for _ in range(ITER):
+        obs = time_step.observation
+        a = classifier.predict([obs])
+        a_right = label(obs)
+        time_step = env.step(a_right)
+
+        confusion[a_right][a[0]] += 1
+
+    return confusion
 
 def read_hyperparameters(classifier_name):
     kwargs = {}
@@ -27,29 +81,24 @@ def read_hyperparameters(classifier_name):
         for line in file:
 
             # Allowing comments
-            if line[0] == "#":
+            if line[0] == "#" or len(line.strip()) == 0:
                 continue
             words = [item.strip() for item in line.split("=")]
 
             if len(words) != 2:
-                # Wrong statement
+                print("Warning: Wrong statement in parameter file: \"{0}\"".format(line))
+                print("We allow only: variable_name = value")
                 continue
             else:
                 key = words[0]
                 value = words[1]
 
-            # We can't know if a param is str / int / float / bool
-            if value == "True" or value == "False":
-                kwargs[key] = True if value == "True" else False
-                continue
-
+            # We can't know if a param is str / int / float / bool / tuple
             try:
-                if "." in value:
-                    kwargs[key] = float(value)
-                else:
-                    kwargs[key] = int(value)
+                # if int, float, bool, tuple, or list
+                kwargs[key] = eval(value)
             except:
-                # Hopefully it is now str
+                # if str
                 kwargs[key] = value
 
     return kwargs
@@ -184,4 +233,4 @@ def plot_predict(classifier, classifier_name, ITER):
 
 def print_dict(d):
     for key in d.keys():
-        print(key, d[key])
+        print(key, d[key], type(d[key]))

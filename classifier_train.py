@@ -1,5 +1,7 @@
 """ Fitting and viewing the performance of pre-tuned classifiers
-Select which classifier to view by the parameters below the imports """
+Select which classifier to view by the parameters below the imports.
+Ideally would save the trained classifiers """
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -15,7 +17,7 @@ from classifier_util import *
 # Change as needed
 classifier_name ="SVC"
 classifier_class = SVC
-num_data_points = 3000
+num_data_points = 3000 # to train on
 
 if __name__ == "__main__":
 
@@ -29,12 +31,9 @@ if __name__ == "__main__":
     del kwargs["balanced_squig"]
     del kwargs["shuffled_squig"]
 
-    # Training and testing in a loop to find non-zero results
-    first_iter = True
-    iters = 0
-
     # We continue to fit and predict if the classifier does not produce sound
     continuing = True
+    iters = 0
     while continuing:
         if iters != 0:
             print("Classifier stayed silent, iteration number:", iters)
@@ -51,5 +50,6 @@ if __name__ == "__main__":
         classifier.fit(x_data, y_data)
 
         # Predict
-        continuing = not plot_predict(classifier, classifier_name, 1000)
+        produced_sound = plot_predict(classifier, classifier_name, 1000)
+        continuing = not produced_sound
         iters += 1

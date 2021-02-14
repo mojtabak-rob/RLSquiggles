@@ -1,5 +1,8 @@
 # Hyperparameters for KNeighborsClassifier
-n_neighbors = 3
+# Minimum precision: 0.5469131048645873
+n_neighbors = 7
+weights = uniform
+n_jobs = 1
 
 # For the training
 balanced_squig = True
