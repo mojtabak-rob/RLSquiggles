@@ -1,6 +1,6 @@
 # Hyperparameters for MLPClassifier
-# Minimum precision: 0.5037524047388384
-hidden_layer_sizes = (132,)
+# Minimum precision: 0.5411521130191207
+hidden_layer_sizes = (169,)
 activation = identity
 
 # For the training

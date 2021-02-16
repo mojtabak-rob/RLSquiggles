@@ -32,10 +32,10 @@ from classifier_util import *
 ### Adjust here
 # Comment out the classifiers you don't want to tune
 to_sweep = [
-    #"RandomForestClassifier",
-    #"SVC",
     #"KNeighborsClassifier",
-    #"MLPClassifier"
+    #"MLPClassifier",
+    #"SVC",
+    "RandomForestClassifier"
 ]
 
 # Meticulously chosen parameters to try

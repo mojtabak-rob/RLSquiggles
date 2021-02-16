@@ -1,10 +1,10 @@
 # Hyperparameters for RandomForestClassifier
-# Minimum precision: 0.6004320987652126
+# Minimum precision: 0.5952528379772962
 max_features = auto
-min_samples_leaf = 4
+min_samples_leaf = 2
 min_samples_split = 10
-n_estimators = 141
-max_depth = 84
+n_estimators = 72
+max_depth = 68
 bootstrap = False
 
 # For the training

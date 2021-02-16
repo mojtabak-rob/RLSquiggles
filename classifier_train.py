@@ -15,8 +15,8 @@ from classifier_util import *
 
 ### Parameters for this script
 # Change as needed
-classifier_name ="SVC"
-classifier_class = SVC
+classifier_name ="RandomForestClassifier"
+classifier_class = RandomForestClassifier
 num_data_points = 3000 # to train on
 
 if __name__ == "__main__":
