@@ -1,7 +1,7 @@
 # Hyperparameters for MLPClassifier
-# Minimum precision: 0.5411521130191207
-hidden_layer_sizes = (169,)
-activation = identity
+# Minimum precision: 0.5396927539451838
+hidden_layer_sizes = [19, 8]
+activation = logistic
 
 # For the training
 balanced_squig = True

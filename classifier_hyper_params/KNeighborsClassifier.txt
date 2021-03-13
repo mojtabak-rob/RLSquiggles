@@ -1,6 +1,6 @@
 # Hyperparameters for KNeighborsClassifier
-# Minimum precision: 0.5103010903551152
-n_neighbors = 13
+# Minimum precision: 0.49773355444997236
+n_neighbors = 7
 weights = distance
 n_jobs = 1
 
