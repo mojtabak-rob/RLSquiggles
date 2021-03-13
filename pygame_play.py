@@ -9,6 +9,8 @@ from tf_agents.environments import tf_py_environment
 
 from versions.mirror_no_silence_punish.SquigglesEnvironment import SquigglesEnvironment # Change this and policy_saved
 
+policy_saved_filename = 'versions/mirror_no_silence_punish/policy_saved'
+
 # Together, these two control the frequency of played notes.
 # Every frame, a new note will be fetched
 FPS = 100
@@ -19,9 +21,9 @@ HEIGHT = 700 # Height and width of screen. All sizes scale with these
 WIDTH = 1300
 ITER = 1000 # 1 episodes are run
 
-def get_beats(N, ITER, env):
+def get_beats(N, ITER, env, policy_saved_filename):
     state = env.reset()
-    policy = tf.saved_model.load('versions/mirror_no_silence_punish/policy_saved') # Change this and env
+    policy = tf.saved_model.load(policy_saved_filename) # Change this and env
 
     beats = [[] for _ in range(N)]
     actions = []
@@ -167,7 +169,7 @@ def main():
 
     N = env.observation_spec().shape[0]
 
-    _, the_hits, actions = get_beats(N, ITER, env)
+    _, the_hits, actions = get_beats(N, ITER, env, policy_saved_filename)
 
     fpsClock = pygame.time.Clock()
     pygame.init()
