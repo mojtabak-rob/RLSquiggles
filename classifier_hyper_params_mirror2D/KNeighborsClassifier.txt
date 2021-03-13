@@ -1,0 +1,9 @@
+# Hyperparameters for KNeighborsClassifier
+# Minimum precision: 0.514100000010162
+n_neighbors = 13
+weights = distance
+n_jobs = 1
+
+# For the training
+balanced_squig = True
+shuffled_squig = False

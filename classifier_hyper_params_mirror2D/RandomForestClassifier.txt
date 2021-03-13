@@ -1,0 +1,12 @@
+# Hyperparameters for RandomForestClassifier
+# Minimum precision: 0.5956002834044318
+max_features = auto
+min_samples_leaf = 2
+min_samples_split = 5
+n_estimators = 71
+max_depth = 72
+bootstrap = False
+
+# For the training
+balanced_squig = True
+shuffled_squig = True

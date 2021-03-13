@@ -1,0 +1,8 @@
+# Hyperparameters for SVC
+# Minimum precision: 0.5902651314894731
+C = 2048
+gamma = 3.0517578125e-05
+
+# For the training
+balanced_squig = True
+shuffled_squig = False
