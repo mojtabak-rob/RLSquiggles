@@ -18,6 +18,7 @@ import numpy as np
 
 # Written by us imports
 from env.SquigglesEnvironment import SquigglesEnvironment
+#from versions.mirror_no_silence_punish.SquigglesEnvironment import SquigglesEnvironment
 from experience_replay import ExperienceReplay
 from basic_agent import generic_dqn_agent # a function
 
@@ -25,30 +26,45 @@ from basic_agent import generic_dqn_agent # a function
 NUMBER_ITERATION = 20000
 COLLECTION_STEPS = 1
 BATCH_SIZE = 64
-EVAL_EPISODES = 10
+EVAL_EPISODES = 1
 EVAL_INTERVAL = 1000
+
+# For running multiple times
+NUM_RUNS = 1
 
 def get_average_return(environment, policy, episodes=10):
 
+    np.random.seed(24)
+
     total_return = 0.0
+    average_played = 0
 
     for _ in range(episodes):
         time_step = environment.reset()
         episode_return = 0.0
 
+        times_played = 0
         while not time_step.is_last():
             action_step = policy.action(time_step)
+            if action_step.action[0] == 1:
+                times_played += 1
+
             time_step = environment.step(action_step.action)
             episode_return += time_step.reward
 
+        average_played += times_played / 1000
         total_return += episode_return
     avg_return = total_return / episodes
+
+    np.random.seed(None)
+
+    print("Average percent played:", average_played/episodes)
 
     return avg_return.numpy()[0]
 
 def init():
-    train_env = SquigglesEnvironment()
-    evaluation_env = SquigglesEnvironment()
+    train_env = SquigglesEnvironment(num_notes=2)
+    evaluation_env = SquigglesEnvironment(num_notes=2)
 
     train_env = tf_py_environment.TFPyEnvironment(train_env)
     evaluation_env = tf_py_environment.TFPyEnvironment(evaluation_env)
@@ -65,7 +81,7 @@ def training_loop(agent, train_env, evaluation_env, experience_replay):
     avg_return = get_average_return(evaluation_env, agent.policy, EVAL_EPISODES)
     returns = [avg_return]
 
-    for _ in tqdm(range(NUMBER_ITERATION)):
+    for iteration in tqdm(range(NUMBER_ITERATION)):
 
         for _ in range(COLLECTION_STEPS):
             experience_replay.timestamp_data(train_env, agent.collect_policy)
@@ -112,20 +128,37 @@ def show_current(ITER, env, policy):
     plt.show()
 
 def main():
-    agent, train_env, evaluation_env, experience_replay = init()
+    all_returns = []
 
-    returns = training_loop(
-        agent,
-        train_env,
-        evaluation_env,
-        experience_replay
-    )
+    for _ in range(NUM_RUNS):
+        agent, train_env, evaluation_env, experience_replay = init()
+
+        returns = training_loop(
+            agent,
+            train_env,
+            evaluation_env,
+            experience_replay
+        )
+
+        all_returns.append(returns)
 
     # save policy
     PolicySaver(agent.policy).save('policy_saved')
 
-    plt.plot(returns)
-    plt.title("Rewards overall")
+    steps_axis = [i for i in range(0,NUMBER_ITERATION+1, EVAL_INTERVAL)]
+    plt.figure()
+    for i in range(NUM_RUNS):
+        plt.plot(steps_axis,all_returns[i])
+    plt.xlabel('Time steps')
+    plt.ylabel('Average return')
+    plt.title("Rewards over 5 runs")
+
+    for i in range(NUM_RUNS):
+        plt.figure()
+        plt.plot(steps_axis,all_returns[i])
+        plt.title("Rewards overall")
+        plt.xlabel('Time steps')
+        plt.ylabel('Average return')
     plt.show()
 
 if __name__ == "__main__":

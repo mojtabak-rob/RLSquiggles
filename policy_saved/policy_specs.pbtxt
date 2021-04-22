@@ -22,7 +22,7 @@ dict_value {
               name: "observation"
               shape {
                 dim {
-                  size: 3
+                  size: 4
                 }
               }
               dtype: DT_INT32

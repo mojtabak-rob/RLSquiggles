@@ -96,7 +96,7 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         if self._episode_ended:
             return self._reset()
 
-        reward = 1
+        reward = 0
 
         if self._predictive:
             if action == 1 or action == 0:
@@ -122,6 +122,12 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
         if self._state%self._time_between_squiggles_beats == 0 and self._squiggles_list[-1].o[int((self._state/self._time_between_squiggles_beats)%16)] == 1:
             play = True
 
+        s = self._time_between_squiggles_beats
+        good_silence = 2 / s
+        on_beat = 1 / s
+        missed_beat = -1.57*(s-1) / s
+        off_beat = -1.85 / s
+
         if action==0:
             #if self._time_since_last_play > self._time_between_squiggles_beats*8:
             #reward -= 1.25
@@ -134,6 +140,12 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
                 #reward -= 20
             #else:
             #    reward += 0
+
+            if self._predictive:
+                reward += missed_beat if self._time_since_real_plays[0] in self._time_since_real_plays[int(len(self._time_since_real_plays)/2):-1] else good_silence
+            else:
+                reward += missed_beat if self._time_since_real_plays[1] in self._time_since_real_plays[int(len(self._time_since_real_plays)/2):-1] else good_silence
+
         if action == 1:
             #if self._time_since_last_play == 1:
             #    reward -= 1
@@ -166,9 +178,9 @@ class SquigglesEnvironment(py_environment.PyEnvironment):
             #reward += 20 if self._time_since_real_plays[0] == self._time_since_real_plays[2] else -10/self._time_between_squiggles_beats
 
             if self._predictive:
-                reward += 20 if self._time_since_real_plays[0] in self._time_since_real_plays[int(len(self._time_since_real_plays)/2):-1] else -10/self._time_between_squiggles_beats
+                reward += on_beat if self._time_since_real_plays[0] in self._time_since_real_plays[int(len(self._time_since_real_plays)/2):-1] else off_beat
             else:
-                reward += 20 if self._time_since_real_plays[1] in self._time_since_real_plays[int(len(self._time_since_real_plays)/2):-1] else -10/self._time_between_squiggles_beats
+                reward += on_beat if self._time_since_real_plays[1] in self._time_since_real_plays[int(len(self._time_since_real_plays)/2):-1] else off_beat
 
             self._time_since_last_play = 0
 

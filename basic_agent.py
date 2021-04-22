@@ -25,7 +25,7 @@ def generic_dqn_agent(env: TFPyEnvironment) -> (dqn_agent.DqnAgent, q_network.QN
     q_net = q_network.QNetwork(
       env.observation_spec(),
       env.action_spec(),
-      fc_layer_params=(2*inp,2*inp,2*inp,2*inp,2*inp),
+      fc_layer_params=(20,20,20,20,20),
       activation_fn=tf.keras.activations.relu)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.0005)

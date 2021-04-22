@@ -17,8 +17,8 @@ from env.SquigglesEnvironment import SquigglesEnvironment
 def label(observation):
     sixteenth = observation[-1]
 
-    # if observation[0] == sixteenth:
-    if observation[0]%sixteenth == 0:
+    if observation[0]+1 == sixteenth:
+    # if observation[0]%sixteenth == 0:
 
         return 1
     return 0
@@ -27,7 +27,7 @@ env = SquigglesEnvironment(num_notes=2) # Code does not support more than 2 note
 env = tf_py_environment.TFPyEnvironment(env)
 
 N = env.observation_spec().shape[0]-1 # Last observation is action, does not change labelling
-ITER = 30000
+ITER = 3000
 
 obs = [[],[]] # One list for each action
 
@@ -45,6 +45,8 @@ for _ in range(ITER):
 
     # The labels are fed to the env, in an attempt to not affect the squiggles in the env
     time_step = env.step(a)
+
+    print(time_step.reward)
 
 # Transpose from ITERx3 to 3xITER
 zero = np.transpose(obs[0])

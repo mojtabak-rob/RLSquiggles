@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import wavio # comment out if you can't get wavio
 
-from SquigglesEnvironment import SquigglesEnvironment
+from env.SquigglesEnvironment import SquigglesEnvironment
+#from versions.mirror_no_silence_punish.SquigglesEnvironment import SquigglesEnvironment
 
 ## TODO: Implement an LSTM layer
 ## TODO: Make a policy that lowers likelyhood after playing 1
@@ -16,6 +17,7 @@ from SquigglesEnvironment import SquigglesEnvironment
 def get_beats(N, ITER, env):
     state = env.reset()
     policy = tf.saved_model.load('policy_saved')
+    #policy = tf.saved_model.load('versions/mirror_no_silence_punish/policy_saved')
 
     beats = [[] for _ in range(N)]
     actions = []
@@ -98,20 +100,20 @@ def make_joint_soundfile(hits1, hits2, ITER, file_name):
     # Compute waveform samples
     x, rate = make_muted_sine(hits1, f_env, ITER)
     y, _ = make_muted_sine(hits2, f_ag, ITER)
-    z, _ = make_muted_sine(hits2, 880.0, ITER)
+    """z, _ = make_muted_sine(hits2, 880.0, ITER)
     w, _ = make_muted_sine(hits2, 1320.0, ITER)
     c, _ = make_muted_sine(hits2, 1100.0, ITER)
     a, _ = make_muted_sine(hits1, 480.0, ITER)
-    b, _ = make_muted_sine(hits1, 720.0, ITER)
+    b, _ = make_muted_sine(hits1, 720.0, ITER)"""
 
     # A bold assumptions that I can simply add one wave to the other
-    joint = x + y + z + w + a + b
+    joint = x + y # + z + w + a + b
 
     # Write the samples to a file
     wavio.write(f"{file_name}.wav", joint, rate, sampwidth=3)
 
 def main():
-    env = SquigglesEnvironment()
+    env = SquigglesEnvironment(num_notes=2)
     env = tf_py_environment.TFPyEnvironment(env)
 
     font = {'family' : 'normal',
@@ -123,14 +125,15 @@ def main():
 
     beats, the_hits, actions = get_beats(N, ITER, env)
 
-    plot_beats(beats, N, ITER)
+    #plot_beats(beats, N, ITER)
     plot_the_hits(the_hits, actions, ITER)
     plt.show()
 
     # comment out if you can't get wavio
-    make_soundfile(the_hits, ITER, "env_sound")
-    make_soundfile(actions, ITER, "action_sound")
-    make_joint_soundfile(the_hits, actions, ITER, "joint_sound")
+    #make_soundfile(the_hits, ITER, "env_sound")
+    #make_soundfile(actions, ITER, "action_sound")
+    #make_joint_soundfile(the_hits, actions, ITER, "joint_sound")
 
 if __name__ == "__main__":
+    print("Main")
     main()

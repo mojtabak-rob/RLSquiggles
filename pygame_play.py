@@ -7,9 +7,9 @@ import numpy as np
 import tensorflow as tf
 from tf_agents.environments import tf_py_environment
 
-from versions.mirror_no_silence_punish.SquigglesEnvironment import SquigglesEnvironment # Change this and policy_saved
+from env.SquigglesEnvironment import SquigglesEnvironment # Change this and policy_saved
 
-policy_saved_filename = 'versions/mirror_no_silence_punish/policy_saved'
+policy_saved_filename = 'policy_saved'
 
 # Together, these two control the frequency of played notes.
 # Every frame, a new note will be fetched
@@ -164,7 +164,7 @@ class SoundSlider:
         self._counter += 1
 
 def main():
-    env = SquigglesEnvironment()
+    env = SquigglesEnvironment(num_notes=2)
     env = tf_py_environment.TFPyEnvironment(env)
 
     N = env.observation_spec().shape[0]

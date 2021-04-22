@@ -1,21 +1,23 @@
-""" This script is not here to stay, but:
-Script to calculate the minimum precision of the saved policy """
+""" Script to calculate the minimum precision of the saved policy """
 
 import tensorflow as tf
 from tf_agents.environments import tf_py_environment
 
-from versions.mirror_no_silence_punish.SquigglesEnvironment import SquigglesEnvironment
+#from versions.mirror_no_silence_punish.SquigglesEnvironment import SquigglesEnvironment
+from env.SquigglesEnvironment import SquigglesEnvironment
 from classifier_util import label
 
-policy = tf.saved_model.load('versions/mirror_no_silence_punish/policy_saved')
+#policy = tf.saved_model.load('versions/mirror_no_silence_punish/policy_saved')
+policy = tf.saved_model.load('policy_saved')
+#policy = tf.saved_model.load('versions/version_2D_mirror/policy_saved')
 
 # Predict
-n = 3
+n = 10
 presicion_0 = 0
 presicion_1 = 0
 for _ in range(n):
     ITER = 1000
-    env = SquigglesEnvironment()
+    env = SquigglesEnvironment(num_notes=2)
     env = tf_py_environment.TFPyEnvironment(env)
     time_step = env.reset()
 
