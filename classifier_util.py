@@ -6,8 +6,9 @@ from random import randint
 
 from visualize import make_joint_soundfile
 from env.SquigglesEnvironment import SquigglesEnvironment
+#from versions.mirror_no_silence_punish.SquigglesEnvironment import SquigglesEnvironment
 
-## A way to label mirror_no_silence_punish's environment observations
+## A way to label environment observations
 # OBS: 2 versions:
 # 1    means mirroring, predictive
 # 2    means sixteenth notes, not-predictive
@@ -36,9 +37,11 @@ def score(classifier_class, kwargs):
     del kwargs["balanced_squig"]
     del kwargs["shuffled_squig"]
 
+    np.random.seed(97)
+
     # Get data
-    x_data, y_data = get_balanced_dataset(2000,verbose=False) if balanced else \
-                     get_dataset(2000,verbose=False)
+    x_data, y_data = get_balanced_dataset(10000,verbose=False) if balanced else \
+                     get_dataset(10000,verbose=False)
     if shuffled:
         x_data, y_data = shuffle_dataset(x_data, y_data,verbose=False)
 
@@ -47,7 +50,7 @@ def score(classifier_class, kwargs):
     classifier.fit(x_data, y_data)
 
     # Predict
-    n = 3
+    n = 5
     presicion_0 = 0
     presicion_1 = 0
     for _ in range(n):
@@ -63,6 +66,8 @@ def score(classifier_class, kwargs):
 
     kwargs["balanced_squig"] = balanced
     kwargs["shuffled_squig"] = shuffled
+
+    np.random.seed(None)
 
     return min(presicion_0, presicion_1)
 
@@ -85,7 +90,7 @@ def get_confusion(classifier):
 
 def read_hyperparameters(classifier_name):
     kwargs = {}
-    with open("classifier_hyper_params/"+classifier_name+".txt", "r") as file:
+    with open("classifier_hyper_params_mirror2D/"+classifier_name+".txt", "r") as file:
         for line in file:
 
             # Allowing comments

@@ -35,7 +35,7 @@ to_sweep = [
     #"KNeighborsClassifier",
     #"MLPClassifier",
     #"SVC",
-    "RandomForestClassifier"
+    #"RandomForestClassifier"
 ]
 
 # Meticulously chosen parameters to try
@@ -57,8 +57,8 @@ params = {
         "balanced_squig":[True],
         "shuffled_squig":[False]
     },
-    "MLPClassifier" : { # 20 combinations
-        "hidden_layer_sizes":[(np.random.randint(10,200),) for _ in range(5)],
+    "MLPClassifier" : { # 320 combinations
+        "hidden_layer_sizes":[[i for _ in range(j)] for i in range(8,40,2) for j in range(1,6)],
         "activation":["identity", "logistic", "tanh", "relu"],
         "balanced_squig":[True],
         "shuffled_squig":[True]
@@ -94,7 +94,7 @@ for classifier_name in to_sweep:
     recursive_test(to_tune, 0, {}, classifier_name, classifier_class, test_scores)
 
     # Write to file
-    with open("classifier_hyper_params/{0}.txt".format(classifier_name), "w") as file:
+    with open("classifier_hyper_params_mirror2D/{0}.txt".format(classifier_name), "w") as file:
         best = [0.0, {}]
         for elem in test_scores:
             if elem[0] > best[0]:
