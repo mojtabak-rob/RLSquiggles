@@ -1,5 +1,5 @@
 # Squiiiiigggllleeeee
-Depp RL for Dr. Squiggles
+Deep RL for Dr. Squiggles
 
 Just for now, as we develop:
 
